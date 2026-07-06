@@ -208,6 +208,15 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
   font-family:var(--serif);font-weight:400;font-size:clamp(1.5rem,4.5vw,2rem);
   color:var(--pd-blue-deep);margin-bottom:6px;line-height:1.2;letter-spacing:-.01em;
 }
+.q-note{
+  font-size:.80rem;color:var(--ink-soft);margin:18px 0 0;line-height:1.55;
+  padding:10px 14px;background:var(--pd-blue-wash);border-radius:10px;
+}
+.opt-active{background:var(--pd-blue-wash);border-color:var(--pd-blue)}
+.free-wrap{display:none;margin-top:12px;gap:10px;flex-wrap:wrap}
+.free-wrap.show{display:flex;animation:fadeUp .25s ease}
+.free-wrap input{flex:1;min-width:200px;font-family:var(--sans);font-size:.98rem;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 16px;outline:none;transition:.18s}
+.free-wrap input:focus{border-color:var(--pd-blue);background:var(--white)}
 .open-note{
   font-size:.83rem;color:var(--ink-soft);margin:14px 0 0;
   padding:12px 16px;background:var(--accent-soft);border-radius:10px;
@@ -229,6 +238,21 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 .opt-sub{font-size:.92rem;color:var(--ink-soft);margin-top:3px;line-height:1.45}
 .opt-arr{color:var(--pd-blue);font-weight:700;flex:none;opacity:0;transition:.18s}
 .opt:hover .opt-arr{opacity:1}
+
+.skip-row{
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  text-align:center;
+}
+.skip-link{
+  background:none;border:none;
+  color:#8a95a1;
+  font-family:var(--sans);font-size:.82rem;font-weight:400;
+  cursor:pointer;padding:6px 4px;
+  text-decoration:underline;text-decoration-color:#c9d1da;
+  text-underline-offset:4px;
+  transition:.18s;
+}
+.skip-link:hover{color:var(--ink-soft);text-decoration-color:var(--ink-soft)}
 
 .back-btn{
   background:none;border:none;color:var(--ink-soft);
@@ -396,10 +420,10 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
   <section id="quiz">
     <div class="progress-wrap">
       <div class="progress-label">
-        <span id="prog-label">Frage 1 von 2</span>
-        <span id="prog-pct">50 %</span>
+        <span id="prog-label">Frage 1 von 3</span>
+        <span id="prog-pct">33 %</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:50%"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:33%"></div></div>
     </div>
     <div id="qcard" class="qcard"></div>
     <button class="back-btn" onclick="goBack()">← Zurück</button>
@@ -418,8 +442,8 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 const Qs = [
   {
     key:"stand",
-    label:"Frage 1 von 2",
-    pct:"50%",
+    label:"Frage 1 von 3",
+    pct:"33%",
     q:"Wie viel Prävention machen Sie heute schon?",
     opts:[
       {v:"nichts",   t:"Noch gar nichts",   s:"Wir würden gern starten, wissen aber nicht wie"},
@@ -429,8 +453,8 @@ const Qs = [
   },
   {
     key:"huerden",
-    label:"Frage 2 von 2",
-    pct:"100%",
+    label:"Frage 2 von 3",
+    pct:"66%",
     q:"Was hält Sie am meisten zurück?",
     opts:[
       {v:"orientierung", t:"Uns fehlt die Orientierung",   s:"Wir wissen nicht genau, wie wir anfangen oder wohin als Nächstes"},
@@ -438,6 +462,20 @@ const Qs = [
       {v:"patienten",    t:"Uns fehlen die Teilnehmenden", s:"Wir hätten Angebote, aber die Kurse füllen sich nicht"},
       {v:"wirtschaft",   t:"Uns bremst der Aufwand",       s:"Zertifizierung und Aufbau schrecken uns ab, bevor sich etwas rechnet"},
       {v:"vertrauen",    t:"Uns fehlt das Vertrauen",      s:"Wir zweifeln, ob unsere Patienten solche Angebote annehmen und ob sie etwas bewirken"}
+    ]
+  },
+  {
+    key:"rolle",
+    label:"Frage 3 von 3",
+    pct:"100%",
+    q:"Was beschreibt Sie am besten?",
+    note:"Ihre Antwort verändert Ihr Ergebnis nicht. Sie hilft uns, den Kompass gezielter auf reale Praxisstrukturen zuzuschneiden, statt an einer Durchschnittspraxis vorbeizuentwickeln.",
+    optional:true,
+    opts:[
+      {v:"allein",     t:"Ich leite eine Praxis alleine"},
+      {v:"team",       t:"Ich leite eine Praxis mit Team"},
+      {v:"angestellt", t:"Ich bin angestellt"},
+      {v:"anderes",    t:"Anderes", free:true}
     ]
   }
 ];
@@ -743,7 +781,8 @@ const Presets = [
 ];
 
 function resolve(a){
-  // Jede der 15 Kombinationen hat einen eigenen, individuellen Plan
+  // Nur stand + huerden bestimmen die Empfehlung.
+  // rolle wird gespeichert, fließt aber bewusst nicht in den Fahrplan ein.
   const key = a.stand + "_" + a.huerden;
   return Plans[key] ? key : null;
 }
@@ -770,19 +809,33 @@ function renderQ(){
   $("prog-label").textContent=Q.label;
   $("prog-pct").textContent=Q.pct;
   $("prog-fill").style.width=Q.pct;
+
+  const noteHtml=Q.note?`<div class="q-note">${Q.note}</div>`:"";
+  const hasFree=Q.opts.some(o=>o.free);
+  const skipHtml=Q.optional?`
+    <div class="skip-row">
+      <button class="skip-link" onclick="skipQ('${Q.key}')">Ohne Antwort zum Ergebnis</button>
+    </div>`:"";
+
   $("qcard").innerHTML=`
     <div class="qcard-label">${Q.label}</div>
     <h2>${Q.q}</h2>
     <div class="options">
       ${Q.opts.map(o=>`
-        <button class="opt" onclick="choose('${Q.key}','${o.v}')">
+        <button class="opt" id="opt-${o.v}" onclick="${o.free?`chooseFree('${Q.key}','${o.v}')`:`choose('${Q.key}','${o.v}')`}">
           <div class="opt-body">
             <div class="opt-title">${o.t}</div>
-            <div class="opt-sub">${o.s}</div>
+            ${o.s?`<div class="opt-sub">${o.s}</div>`:""}
           </div>
           <span class="opt-arr">→</span>
         </button>`).join("")}
-    </div>`;
+    </div>
+    ${hasFree?`<div class="free-wrap" id="free-wrap">
+      <input id="free-input" type="text" maxlength="120" placeholder="Kurz beschreiben (optional)" aria-label="Freie Antwort">
+      <button class="btn-light" onclick="submitFree()">Weiter →</button>
+    </div>`:""}
+    ${noteHtml}
+    ${skipHtml}`;
   $("qcard").style.animation="none";
   requestAnimationFrame(()=>{ $("qcard").style.animation=""; });
 }
@@ -790,6 +843,25 @@ function choose(key,val){
   ans[key]=val;
   if(step<Qs.length-1){ step++; renderQ(); }
   else showResult(resolve(ans));
+}
+function skipQ(key){
+  ans[key]="skipped";
+  if(step<Qs.length-1){ step++; renderQ(); }
+  else showResult(resolve(ans));
+}
+function chooseFree(key,val){
+  ans[key]=val;
+  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("opt-active"));
+  const btn=document.getElementById("opt-"+val);
+  if(btn) btn.classList.add("opt-active");
+  const wrap=document.getElementById("free-wrap");
+  if(wrap){ wrap.classList.add("show"); const inp=document.getElementById("free-input"); if(inp) inp.focus(); }
+}
+function submitFree(){
+  const Q=Qs[step];
+  const inp=document.getElementById("free-input");
+  if(inp) ans[Q.key+"Text"]=inp.value.trim();
+  if(step<Qs.length-1){ step++; renderQ(); } else showResult(resolve(ans));
 }
 function goBack(){
   if(step===0){ $("quiz").style.display="none"; $("intro").classList.remove("hide"); return; }

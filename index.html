@@ -212,16 +212,6 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
   font-size:.80rem;color:var(--ink-soft);margin:18px 0 0;line-height:1.55;
   padding:10px 14px;background:var(--pd-blue-wash);border-radius:10px;
 }
-.opt-active{background:var(--pd-blue-wash);border-color:var(--pd-blue)}
-.free-wrap{display:none;margin-top:12px;gap:10px;flex-wrap:wrap}
-.free-wrap.show{display:flex;animation:fadeUp .25s ease}
-.free-wrap input{flex:1;min-width:200px;font-family:var(--sans);font-size:.98rem;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 16px;outline:none;transition:.18s}
-.free-wrap input:focus{border-color:var(--pd-blue);background:var(--white)}
-.open-note{
-  font-size:.83rem;color:var(--ink-soft);margin:14px 0 0;
-  padding:12px 16px;background:var(--accent-soft);border-radius:10px;
-  border-left:3px solid var(--accent);
-}
 
 .options{display:grid;gap:10px;margin-top:26px}
 .opt{
@@ -439,6 +429,31 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 </div>
 
 <script>
+/* ── Supabase Konfiguration ── */
+const SUPABASE_URL = "https://okokfkwjrmzufpgktquh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7c4b8rIaK4WEGL99crdfmw_HN9LD6RH";
+
+async function saveAntwort(stand, huerden, rolle) {
+  try {
+    await fetch(SUPABASE_URL + "/rest/v1/antworten", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        Praevention_status: stand,
+        Barriere: huerden,
+        Rolle: rolle
+      })
+    });
+  } catch(e) {
+    // Fehler still ignorieren, User merkt nichts
+  }
+}
+
 const Qs = [
   {
     key:"stand",
@@ -475,7 +490,7 @@ const Qs = [
       {v:"allein",     t:"Ich leite eine Praxis alleine"},
       {v:"team",       t:"Ich leite eine Praxis mit Team"},
       {v:"angestellt", t:"Ich bin angestellt"},
-      {v:"anderes",    t:"Anderes", free:true}
+      {v:"anderes",    t:"Anderes"}
     ]
   }
 ];
@@ -781,14 +796,13 @@ const Presets = [
 ];
 
 function resolve(a){
-  // Nur stand + huerden bestimmen die Empfehlung.
-  // rolle wird gespeichert, fließt aber bewusst nicht in den Fahrplan ein.
   const key = a.stand + "_" + a.huerden;
   return Plans[key] ? key : null;
 }
 
 let step=0;
 const ans={};
+let quizCompleted=false; // Nur speichern wenn Quiz vollständig durchlaufen
 const $=id=>document.getElementById(id);
 
 $("presets").innerHTML=Presets.map((p,i)=>`
@@ -799,11 +813,13 @@ $("presets").innerHTML=Presets.map((p,i)=>`
 
 function startQuiz(){
   step=0;
+  quizCompleted=false;
   $("intro").classList.add("hide");
   $("quiz").style.display="block";
   renderQ();
   window.scrollTo(0,0);
 }
+
 function renderQ(){
   const Q=Qs[step];
   $("prog-label").textContent=Q.label;
@@ -811,7 +827,6 @@ function renderQ(){
   $("prog-fill").style.width=Q.pct;
 
   const noteHtml=Q.note?`<div class="q-note">${Q.note}</div>`:"";
-  const hasFree=Q.opts.some(o=>o.free);
   const skipHtml=Q.optional?`
     <div class="skip-row">
       <button class="skip-link" onclick="skipQ('${Q.key}')">Ohne Antwort zum Ergebnis</button>
@@ -822,7 +837,7 @@ function renderQ(){
     <h2>${Q.q}</h2>
     <div class="options">
       ${Q.opts.map(o=>`
-        <button class="opt" id="opt-${o.v}" onclick="${o.free?`chooseFree('${Q.key}','${o.v}')`:`choose('${Q.key}','${o.v}')`}">
+        <button class="opt" id="opt-${o.v}" onclick="choose('${Q.key}','${o.v}')">
           <div class="opt-body">
             <div class="opt-title">${o.t}</div>
             ${o.s?`<div class="opt-sub">${o.s}</div>`:""}
@@ -830,44 +845,37 @@ function renderQ(){
           <span class="opt-arr">→</span>
         </button>`).join("")}
     </div>
-    ${hasFree?`<div class="free-wrap" id="free-wrap">
-      <input id="free-input" type="text" maxlength="120" placeholder="Kurz beschreiben (optional)" aria-label="Freie Antwort">
-      <button class="btn-light" onclick="submitFree()">Weiter →</button>
-    </div>`:""}
     ${noteHtml}
     ${skipHtml}`;
   $("qcard").style.animation="none";
   requestAnimationFrame(()=>{ $("qcard").style.animation=""; });
 }
+
 function choose(key,val){
   ans[key]=val;
   if(step<Qs.length-1){ step++; renderQ(); }
-  else showResult(resolve(ans));
+  else {
+    quizCompleted=true;
+    showResult(resolve(ans));
+  }
 }
+
 function skipQ(key){
   ans[key]="skipped";
   if(step<Qs.length-1){ step++; renderQ(); }
-  else showResult(resolve(ans));
+  else {
+    quizCompleted=true;
+    showResult(resolve(ans));
+  }
 }
-function chooseFree(key,val){
-  ans[key]=val;
-  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("opt-active"));
-  const btn=document.getElementById("opt-"+val);
-  if(btn) btn.classList.add("opt-active");
-  const wrap=document.getElementById("free-wrap");
-  if(wrap){ wrap.classList.add("show"); const inp=document.getElementById("free-input"); if(inp) inp.focus(); }
-}
-function submitFree(){
-  const Q=Qs[step];
-  const inp=document.getElementById("free-input");
-  if(inp) ans[Q.key+"Text"]=inp.value.trim();
-  if(step<Qs.length-1){ step++; renderQ(); } else showResult(resolve(ans));
-}
+
 function goBack(){
   if(step===0){ $("quiz").style.display="none"; $("intro").classList.remove("hide"); return; }
   step--; renderQ();
 }
+
 function runPreset(i){
+  // Presets speichern nicht, kein echtes Quiz
   Object.assign(ans,Presets[i].a);
   showResult(Presets[i].plan);
 }
@@ -877,6 +885,15 @@ function showResult(key){
   $("quiz").style.display="none";
   $("result").style.display="block";
   window.scrollTo(0,0);
+
+  // Nur speichern wenn Quiz wirklich durchlaufen wurde
+  if(quizCompleted && ans.stand && ans.huerden){
+    saveAntwort(
+      ans.stand,
+      ans.huerden,
+      ans.rolle || "skipped"
+    );
+  }
 
   if(!key||!Plans[key]){
     $("result-intro").innerHTML="";
@@ -945,6 +962,7 @@ function showResult(key){
 function restart(){
   for(const k in ans) delete ans[k];
   step=0;
+  quizCompleted=false;
   $("result").style.display="none";
   $("intro").classList.remove("hide");
   window.scrollTo(0,0);

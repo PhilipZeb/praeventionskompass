@@ -306,17 +306,29 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
   display:flex;align-items:center;gap:12px;
 }
 .ag-section h4::after{content:"";height:1px;background:#b4cfeb;flex:1}
+
+/* AG Ressourcen als klickbare Boxen */
 .ag-item{
-  padding:11px 0;border-bottom:1px solid #c9dcf2;
-  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:13px 15px;border-radius:12px;margin-bottom:9px;
+  background:var(--white);border:1px solid #d3e2f4;
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  text-decoration:none;color:inherit;cursor:pointer;
+  transition:transform .16s, box-shadow .16s, border-color .16s;
 }
-.ag-item:last-child{border-bottom:none;padding-bottom:2px}
-.ag-item-text strong{display:block;font-size:1rem;color:var(--pd-blue-deep);font-weight:600}
+.ag-item:last-child{margin-bottom:0}
+.ag-item:hover{border-color:var(--pd-blue);box-shadow:0 4px 16px rgba(0,79,159,.12);transform:translateY(-1px)}
+.ag-item-text{min-width:0}
+.ag-item-text strong{display:block;font-size:1rem;color:var(--pd-blue-deep);font-weight:600;margin-bottom:2px}
 .ag-item-text span{font-size:.88rem;color:var(--ink-soft);line-height:1.45}
-.ag-item-link{
-  font-size:.74rem;font-weight:600;color:var(--pd-blue);
-  white-space:nowrap;flex:none;
+.ag-cta{
+  flex:none;white-space:nowrap;
+  font-family:var(--sans);font-weight:600;font-size:.82rem;
+  background:var(--pd-blue);color:#fff;
+  border-radius:999px;padding:9px 16px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .16s;
 }
+.ag-item:hover .ag-cta{background:var(--pd-blue-deep)}
 
 .hint-box{
   background:var(--accent-soft);border:1px solid #f3d9c4;
@@ -349,6 +361,7 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
   background:var(--pd-blue);color:var(--white);
   border:none;border-radius:10px;padding:12px 24px;
   cursor:pointer;transition:.2s;white-space:nowrap;
+  display:inline-flex;align-items:center;text-decoration:none;
 }
 .btn-light:hover{background:var(--pd-blue-deep)}
 
@@ -433,6 +446,9 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 const SUPABASE_URL = "https://okokfkwjrmzufpgktquh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7c4b8rIaK4WEGL99crdfmw_HN9LD6RH";
 
+/* Diese Adresse bekommt die Kontaktanfragen. Vor dem Livegang durch die echte Adresse ersetzen. */
+const KONTAKT_EMAIL = "kontakt@praeventionskompass-physio.de";
+
 async function saveAntwort(stand, huerden, rolle) {
   try {
     await fetch(SUPABASE_URL + "/rest/v1/antworten", {
@@ -453,6 +469,48 @@ async function saveAntwort(stand, huerden, rolle) {
     // Fehler still ignorieren, User merkt nichts
   }
 }
+
+/* ── Klicktracking: welcher Link wird bei welchem Weg geklickt ──
+   Schreibt in die separate Tabelle "klicks". Jede Zeile trägt die
+   drei Antworten plus das Klickziel. Nur bei echten Durchläufen,
+   nicht bei den Beispielen. Bricht nie das Tool, wenn etwas schiefgeht. */
+async function saveKlick(ziel) {
+  if (!quizCompleted || !ans.stand || !ans.huerden) return;
+  try {
+    await fetch(SUPABASE_URL + "/rest/v1/klicks", {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        Praevention_status: ans.stand,
+        Barriere: ans.huerden,
+        Rolle: ans.rolle || "skipped",
+        Ziel: ziel
+      })
+    });
+  } catch(e) {
+    // Fehler still ignorieren
+  }
+}
+
+/* ── Zuordnung Ressource → echter Link, Klickziel und Button-Text ──
+   Wird nach dem Titel der Ressource aufgelöst. Der Fallback greift,
+   falls ein Titel nicht in der Liste steht. */
+const AG_LINKS = {
+  "Zertifizierte Kurskonzepte der AG Prävention": {url:"https://agp.mygemiko.de/shop.php", ziel:"kurskonzepte", cta:"Ansehen"},
+  "Netzwerk Prävention und Gesundheitsförderung": {url:"https://agp.mygemiko.de/news.php", ziel:"netzwerk", cta:"Mehr erfahren"},
+  "Zentrale Prüfstelle Prävention": {url:"https://www.zentrale-pruefstelle-praevention.de/index.html", ziel:"zpp", cta:"Zur ZPP"},
+  "Persönliche Beratung der AG Prävention": {url:"https://agp.mygemiko.de/shop.php?action=register_course_multi&amp;id=5446&amp;type=course", ziel:"beratung", cta:"Termin ansehen"},
+  "Netzwerktreffen der AG Prävention": {url:"https://agp.mygemiko.de/shop.php", ziel:"netzwerktreffen", cta:"Ansehen"},
+  "Blog der AG Prävention": {url:"https://agp.mygemiko.de/blog.php", ziel:"blog", cta:"Zum Blog"},
+  "Physio Deutschland: Prävention": {url:"https://www.physio-deutschland.de/fachkreise/verbandsstruktur/arbeitsgemeinschaften/praevention.html", ziel:"physio_deutschland", cta:"Öffnen"}
+};
+const AG_FALLBACK = {url:"https://agp.mygemiko.de/news.php", ziel:"ag_allgemein", cta:"Zur AG"};
 
 const Qs = [
   {
@@ -928,11 +986,14 @@ function showResult(key){
   const agHtml=`
     <div class="ag-section">
       <h4>Ressourcen der AG Prävention</h4>
-      ${p.ag.map(a=>`
-        <div class="ag-item">
+      ${p.ag.map(a=>{
+        const L = AG_LINKS[a.t] || AG_FALLBACK;
+        return `
+        <a class="ag-item" href="${L.url}" target="_blank" rel="noopener" onclick="saveKlick('${L.ziel}')">
           <div class="ag-item-text"><strong>${a.t}</strong><span>${a.d}</span></div>
-          <span class="ag-item-link">${a.link} →</span>
-        </div>`).join("")}
+          <span class="ag-cta">${L.cta} →</span>
+        </a>`;
+      }).join("")}
     </div>`;
 
   const hintHtml=p.hint?`<div class="hint-box"><strong>Gut zu wissen:</strong> ${p.hint}</div>`:"";
@@ -947,7 +1008,7 @@ function showResult(key){
       <div class="closing-quote">„${p.quote}"</div>
       <div class="closing-cta">
         <p>Die AG Prävention begleitet Sie auf diesem Weg.</p>
-        <button class="btn-light" onclick="alert('Im fertigen Tool führt dieser Klick zur AG Prävention.')">Kontakt aufnehmen</button>
+        <a class="btn-light" href="mailto:${KONTAKT_EMAIL}?subject=Anfrage%20zum%20Pr%C3%A4ventionskompass" onclick="saveKlick('kontakt')">Kontakt aufnehmen</a>
       </div>
     </div>`;
 

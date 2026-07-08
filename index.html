@@ -41,7 +41,6 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 @media(min-width:600px){.btn-primary{font-size:1.2rem;padding:20px 46px;gap:14px}}
 @media(min-width:900px){.btn-primary{font-size:1.25rem;padding:22px 52px}}
 .btn-primary .arr{transition:.2s}.btn-primary:hover .arr{transform:translateX(4px)}
-/* Trust line under start button */
 .trust-line{font-size:.82rem;color:var(--ink-soft);margin-top:14px;display:flex;align-items:center;gap:8px;}
 .trust-line::before{content:"";display:inline-block;width:16px;height:1px;background:var(--ink-soft);opacity:.5;}
 .info-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:44px 0 0;}
@@ -81,7 +80,6 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 .freitext-wrap textarea{width:100%;font-family:var(--sans);font-size:.98rem;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;resize:vertical;line-height:1.5;}
 .freitext-wrap textarea:focus{outline:none;border-color:var(--pd-blue);background:var(--white)}
 .freitext-hint{font-size:.78rem;color:var(--ink-soft);margin-top:6px;line-height:1.5}
-/* Weiter button – centered, more presence */
 .weiter-wrap{display:flex;justify-content:center;margin-top:32px;}
 .weiter-btn{font-family:var(--display);font-weight:600;font-size:1.1rem;background:var(--pd-blue);color:#fff;border:none;border-radius:14px;padding:18px 44px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:12px;box-shadow:0 6px 22px rgba(0,79,159,.28);letter-spacing:-.01em;}
 .weiter-btn:hover:not(:disabled){background:var(--pd-blue-deep);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,79,159,.34)}
@@ -132,7 +130,6 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 .todo-state{background:var(--white);border:2px dashed var(--line);border-radius:20px;padding:44px 32px;text-align:center;}
 .todo-state h2{font-family:var(--serif);font-weight:400;color:var(--pd-blue-deep);margin-bottom:12px;font-size:1.65rem}
 .todo-state p{color:var(--ink-soft);max-width:44ch;margin:0 auto 26px;line-height:1.65}
-/* ── Feedback ── */
 .feedback-block{margin-top:28px;padding:20px 22px;background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);animation:fadeUp .5s ease .9s both;}
 @media(min-width:600px){.feedback-block{padding:22px 28px}}
 .feedback-label{font-size:.74rem;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;}
@@ -151,7 +148,7 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 .feedback-send:hover{background:var(--pd-blue-deep)}
 .feedback-sent{display:none;font-size:.88rem;color:#2d8a4e;font-weight:600;padding:8px 0 2px;}
 .feedback-sent.visible{display:block}
-.feedback-hint{font-size:.76rem;color:#9aa5b0;margin-top:10px;line-height:1.5;}
+.feedback-hint{font-size:.76px;color:#9aa5b0;margin-top:10px;line-height:1.5;}
 .hide{display:none!important}
 </style>
 </head>
@@ -226,33 +223,69 @@ const SUPABASE_URL="https://okokfkwjrmzufpgktquh.supabase.co";
 const SUPABASE_KEY="sb_publishable_7c4b8rIaK4WEGL99crdfmw_HN9LD6RH";
 const KONTAKT_EMAIL="info@ag-praevention.de";
 
-async function saveAntwort(stand,huerden,rolle,freitext){
-  try{await fetch(SUPABASE_URL+"/rest/v1/antworten",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Prefer":"return=minimal"},body:JSON.stringify({Praevention_status:stand,Barriere:huerden,Rolle:rolle,Rolle_freitext:freitext||null})})}catch(e){}
+// ── Supabase Helpers ──
+async function sbPost(table,payload){
+  try{
+    await fetch(SUPABASE_URL+"/rest/v1/"+table,{
+      method:"POST",keepalive:true,
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Prefer":"return=minimal"},
+      body:JSON.stringify(payload)
+    });
+  }catch(e){}
 }
-async function saveKlick(ziel){
+
+// ── Tracking Funktionen ──
+function saveAntwort(){
   if(!quizCompleted||!ans.stand||!ans.huerden)return;
-  try{await fetch(SUPABASE_URL+"/rest/v1/klicks",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Prefer":"return=minimal"},body:JSON.stringify({Praevention_status:ans.stand,Barriere:ans.huerden,Rolle:ans.rolle||"skipped",Ziel:ziel})})}catch(e){}
+  sbPost("antworten",{
+    Praevention_status:ans.stand,
+    Barriere:ans.huerden,
+    Rolle:ans.rolle||"skipped",
+    Rolle_freitext:ans.rolle_freitext||null
+  });
+}
+
+function saveKlick(ziel){
+  if(!quizCompleted||!ans.stand||!ans.huerden)return;
+  sbPost("klicks",{
+    Praevention_status:ans.stand,
+    Barriere:ans.huerden,
+    Rolle:ans.rolle||"skipped",
+    Ziel:ziel
+  });
+}
+
+function saveAbbruch(fragenummer){
+  sbPost("abbrueche",{
+    Frage:fragenummer,
+    Praevention_status:ans.stand||null,
+    Barriere:ans.huerden||null
+  });
+}
+
+async function saveFeedback(wert,text){
+  if(!quizCompleted||!ans.stand||!ans.huerden)return;
+  sbPost("feedback",{
+    Praevention_status:ans.stand,
+    Barriere:ans.huerden,
+    Rolle:ans.rolle||"skipped",
+    Wertung:wert,
+    Kommentar:text||null
+  });
 }
 
 // ── Abbruch-Tracking ──
-async function saveAbbruch(fragenummer){
-  try{await fetch(SUPABASE_URL+"/rest/v1/abbrueche",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Prefer":"return=minimal"},body:JSON.stringify({Frage:fragenummer,Praevention_status:ans.stand||null,Barriere:ans.huerden||null})})}catch(e){}
-}
-
 let abbruchGesendet=false;
 function trackAbbruch(){
-  if(abbruchGesendet)return;
-  // Nur tracken wenn Quiz gestartet aber nicht abgeschlossen
-  if(!quizStarted||quizCompleted)return;
+  if(abbruchGesendet||!quizStarted||quizCompleted)return;
   abbruchGesendet=true;
   saveAbbruch(step+1);
 }
+window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")trackAbbruch();});
+window.addEventListener("pagehide",function(){trackAbbruch();});
 
+// ── Feedback UI ──
 let feedbackWert=null;
-async function saveFeedback(wert,text){
-  if(!quizCompleted||!ans.stand||!ans.huerden)return;
-  try{await fetch(SUPABASE_URL+"/rest/v1/feedback",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Prefer":"return=minimal"},body:JSON.stringify({Praevention_status:ans.stand,Barriere:ans.huerden,Rolle:ans.rolle||"skipped",Wertung:wert,Kommentar:text||null})})}catch(e){}
-}
 function selectThumb(wert){
   feedbackWert=wert;
   document.getElementById("thumb-up").className="thumb-btn"+(wert==="up"?" selected-up":"");
@@ -269,15 +302,42 @@ async function submitFeedback(){
   document.getElementById("feedback-hint").style.display="none";
 }
 
-const AG_LINKS={"Zertifizierte Kurskonzepte der AG Prävention":{url:"https://agp.mygemiko.de/shop.php",ziel:"kurskonzepte",cta:"Ansehen"},"Netzwerk Prävention und Gesundheitsförderung":{url:"https://agp.mygemiko.de/news.php",ziel:"netzwerk",cta:"Mehr erfahren"},"Zentrale Prüfstelle Prävention":{url:"https://www.zentrale-pruefstelle-praevention.de/index.html",ziel:"zpp",cta:"Zur ZPP"},"Persönliche Beratung der AG Prävention":{url:"https://agp.mygemiko.de/shop.php?action=register_course_multi&id=5446&type=course",ziel:"beratung",cta:"Termin ansehen"},"Netzwerktreffen der AG Prävention":{url:"https://agp.mygemiko.de/shop.php",ziel:"netzwerktreffen",cta:"Ansehen"},"Blog der AG Prävention":{url:"https://agp.mygemiko.de/blog.php",ziel:"blog",cta:"Zum Blog"},"Physio Deutschland: Prävention":{url:"https://www.physio-deutschland.de/fachkreise/verbandsstruktur/arbeitsgemeinschaften/praevention.html",ziel:"physio_deutschland",cta:"Öffnen"}};
+// ── AG Links ──
+const AG_LINKS={
+  "Zertifizierte Kurskonzepte der AG Prävention":{url:"https://agp.mygemiko.de/shop.php",ziel:"kurskonzepte",cta:"Ansehen"},
+  "Netzwerk Prävention und Gesundheitsförderung":{url:"https://agp.mygemiko.de/news.php",ziel:"netzwerk",cta:"Mehr erfahren"},
+  "Zentrale Prüfstelle Prävention":{url:"https://www.zentrale-pruefstelle-praevention.de/index.html",ziel:"zpp",cta:"Zur ZPP"},
+  "Persönliche Beratung der AG Prävention":{url:"https://agp.mygemiko.de/shop.php?action=register_course_multi&id=5446&type=course",ziel:"beratung",cta:"Termin ansehen"},
+  "Netzwerktreffen der AG Prävention":{url:"https://agp.mygemiko.de/shop.php",ziel:"netzwerktreffen",cta:"Ansehen"},
+  "Blog der AG Prävention":{url:"https://agp.mygemiko.de/blog.php",ziel:"blog",cta:"Zum Blog"},
+  "Physio Deutschland: Prävention":{url:"https://www.physio-deutschland.de/fachkreise/verbandsstruktur/arbeitsgemeinschaften/praevention.html",ziel:"physio_deutschland",cta:"Öffnen"}
+};
 const AG_FALLBACK={url:"https://agp.mygemiko.de/news.php",ziel:"ag_allgemein",cta:"Zur AG"};
 
+// ── Fragen ──
 const Qs=[
-  {key:"stand",label:"Frage 1 von 3",pct:"33%",q:"Wie viel Prävention machen Sie heute schon?",opts:[{v:"nichts",t:"Noch gar nichts",s:"Wir würden gern starten, wissen aber nicht wie"},{v:"erste",t:"Erste Angebote",s:"Ein bis zwei Kurse laufen, aber es könnte mehr sein"},{v:"struktur",t:"Läuft strukturiert",s:"Feste Kurse, klare Abläufe, wir wollen weiterwachsen"}]},
-  {key:"huerden",label:"Frage 2 von 3",pct:"66%",q:"Was hält Sie am meisten zurück?",opts:[{v:"orientierung",t:"Uns fehlt die Orientierung",s:"Wir wissen nicht genau, wie wir anfangen oder wohin als Nächstes"},{v:"zeit",t:"Uns fehlt die Zeit",s:"Der Praxisalltag lässt kaum Raum für etwas Neues"},{v:"patienten",t:"Uns fehlen die Teilnehmenden",s:"Wir hätten Angebote, aber die Kurse füllen sich nicht"},{v:"wirtschaft",t:"Uns bremst der Aufwand",s:"Zertifizierung und Aufbau schrecken uns ab, bevor sich etwas rechnet"},{v:"vertrauen",t:"Uns fehlt das Vertrauen",s:"Wir zweifeln, ob unsere Patienten solche Angebote annehmen und ob sie etwas bewirken"}]},
-  {key:"rolle",label:"Frage 3 von 3",pct:"100%",q:"Was beschreibt Sie am besten?",opts:[{v:"angestellt",t:"Ich bin angestellt"},{v:"allein",t:"Ich leite eine Praxis alleine"},{v:"team_klein",t:"Ich leite eine Praxis mit Team (2 bis 5 Mitarbeiter)"},{v:"team_gross",t:"Ich leite eine Praxis mit Team (6 oder mehr Mitarbeiter)"},{v:"anderes",t:"Keine dieser Optionen"}]}
+  {key:"stand",label:"Frage 1 von 3",pct:"33%",q:"Wie viel Prävention machen Sie heute schon?",opts:[
+    {v:"nichts",t:"Noch gar nichts",s:"Wir würden gern starten, wissen aber nicht wie"},
+    {v:"erste",t:"Erste Angebote",s:"Ein bis zwei Kurse laufen, aber es könnte mehr sein"},
+    {v:"struktur",t:"Läuft strukturiert",s:"Feste Kurse, klare Abläufe, wir wollen weiterwachsen"}
+  ]},
+  {key:"huerden",label:"Frage 2 von 3",pct:"66%",q:"Was hält Sie am meisten zurück?",opts:[
+    {v:"orientierung",t:"Uns fehlt die Orientierung",s:"Wir wissen nicht genau, wie wir anfangen oder wohin als Nächstes"},
+    {v:"zeit",t:"Uns fehlt die Zeit",s:"Der Praxisalltag lässt kaum Raum für etwas Neues"},
+    {v:"patienten",t:"Uns fehlen die Teilnehmenden",s:"Wir hätten Angebote, aber die Kurse füllen sich nicht"},
+    {v:"wirtschaft",t:"Uns bremst der Aufwand",s:"Zertifizierung und Aufbau schrecken uns ab, bevor sich etwas rechnet"},
+    {v:"vertrauen",t:"Uns fehlt das Vertrauen",s:"Wir zweifeln, ob unsere Patienten solche Angebote annehmen und ob sie etwas bewirken"}
+  ]},
+  {key:"rolle",label:"Frage 3 von 3",pct:"100%",q:"Was beschreibt Sie am besten?",opts:[
+    {v:"angestellt",t:"Ich bin angestellt"},
+    {v:"allein",t:"Ich leite eine Praxis alleine"},
+    {v:"team_klein",t:"Ich leite eine Praxis mit Team (2–5 Mitarbeitende)"},
+    {v:"team_gross",t:"Ich leite eine Praxis mit Team (6+ Mitarbeitende)"},
+    {v:"anderes",t:"Keine dieser Optionen"}
+  ]}
 ];
 
+// ── Ergebnisseiten ──
 const Plans={
   nichts_orientierung:{eyebrow:"Ihr Weg · Einstieg · Orientierung",h:"Ein Kurs. Kein Masterplan.",lead:"Sie starten bei null und wissen nicht, wo Sie ansetzen sollen. Das Gefühl, erst alles wissen zu müssen, ist der häufigste Grund, gar nicht anzufangen. Dabei reicht ein einziges fertiges Konzept, um loszulegen.",steps:[{h:"Fertiges Kurskonzept wählen",p:"Die AG Prävention weist Sie in fertige, von der ZPP anerkannte Kurskonzepte ein, zum Beispiel Fit ins Alter. Kein eigenes Konzept, keine eigenen Stundenbilder nötig. Stundenbilder und Handouts erhalten Sie mit der Einweisung."},{h:"Kurs bei der ZPP eintragen",p:"Qualifikation als Kursleitung anerkennen lassen, Einweisung ins Konzept nachweisen, Kurs erfassen. Bei fertigen Konzepten ist das Verfahren deutlich vereinfacht. Die Zertifizierung ist kostenfrei und gilt in der Regel drei Jahre."},{h:"Einen festen Termin in den Kalender setzen",p:"Einmal pro Woche, feste Zeit. Verlässlichkeit ist wichtiger als perfekte Vorbereitung."},{h:"Bestandspatienten direkt ansprechen",p:"Die besten ersten Teilnehmenden sind schon bei Ihnen. Ein persönliches Wort am Ende der Behandlung wirkt mehr als jeder Flyer."}],ag:[{t:"Zertifizierte Kurskonzepte der AG Prävention",d:"Fertige Konzepte mit Einweisung, Stundenbildern und Handouts"},{t:"Netzwerk Prävention und Gesundheitsförderung",d:"Erfahrungsaustausch mit Praxen, die genau hier gestartet sind"},{t:"Zentrale Prüfstelle Prävention",d:"Anerkennung, Eintragung und Zertifizierung Ihres Kurses"}],hint:"Zertifizierte Präventionskurse werden von den Krankenkassen bezuschusst. Ihre Patienten zahlen die Kursgebühr also meist nur zum Teil selbst.",quote:"Prävention beginnt nicht mit dem perfekten Konzept. Sie beginnt mit dem ersten Kurs."},
   nichts_zeit:{eyebrow:"Ihr Weg · Einstieg · Zeit",h:"Kleiner Anfang. Echter Effekt.",lead:"Sie möchten starten, aber der Praxisalltag lässt keinen Raum für ein neues Projekt. Oft wird Prävention als Zusatzaufgabe gedacht, die extra Zeit braucht. Entscheidend ist nicht, mehr Zeit zu finden, sondern ein Format, das in den bestehenden Tag passt.",steps:[{h:"Ein Format wählen, das in den Alltag passt",p:"Eine Gruppe über 45 Minuten vor oder nach der regulären Behandlungszeit. Kein eigener Raum nötig, kein Umrüsten."},{h:"Fertiges Konzept nutzen statt eigenes bauen",p:"Die Konzepte der AG Prävention liefern Aufbau, Stundenbilder und Handouts mit. Das zeitintensive Erstellen eines eigenen Konzeptes entfällt komplett."},{h:"Prüfen, wer im Team schon startklar ist",p:"Keine neue Stelle, keine monatelange Zusatzqualifikation. Vielleicht ist jemand im Team bereits qualifiziert und wartet nur auf den Anlass."},{h:"Acht Wochen Testlauf planen",p:"Kein dauerhaftes Commitment zum Start. Acht Wochen laufen lassen, ehrlich auswerten, dann entscheiden."}],ag:[{t:"Zertifizierte Kurskonzepte der AG Prävention",d:"Direkt einsetzbare Konzepte ohne eigene Vorbereitung"},{t:"Netzwerk Prävention und Gesundheitsförderung",d:"Erfahrungen von Praxen, die mit wenig Zeit gestartet sind"},{t:"Persönliche Beratung der AG Prävention",d:"Gespräch dazu, welches Format zu Ihrem Alltag passt"}],hint:"Viele Praxen starten mit einem einzigen Kurs in der Randzeit. Der Aufwand bleibt überschaubar und Sie sehen schnell, ob es für Sie funktioniert.",quote:"Prävention braucht keinen freien Tag. Sie braucht eine feste Stunde."},
@@ -296,13 +356,10 @@ const Plans={
   struktur_vertrauen:{eyebrow:"Ihr Weg · Weiterentwicklung · Vertrauen",h:"Sie haben mehr Belege, als Sie denken.",lead:"Ihre Prävention läuft strukturiert, und trotzdem bleibt die Frage, ob sie bei den Menschen wirklich etwas verändert oder nur Kurse füllt. Die Antwort steckt längst in Ihrer Praxis. Sie wurde nur nie systematisch eingesammelt.",steps:[{h:"Wirkung dokumentieren statt vermuten",p:"Eine gleichbleibende, kurze Abfrage zu Beginn und am Ende jedes Kurses, etwa zu Beschwerden im Alltag. Über die Kurse hinweg entsteht daraus ein klares Bild Ihrer eigenen Praxis."},{h:"Ergebnisse ins Team tragen",p:"Wer sieht, was die eigenen Kurse bewirken, arbeitet anders. Zweifel im Team beantworten Sie mit denselben Zahlen wie Ihre eigenen."},{h:"Teilnehmerstimmen festhalten",p:"Kurze Zitate und Verläufe, mit Einverständnis gesammelt, wirken nach innen wie nach außen und sind ehrlicher als jeder Werbetext."},{h:"Die eigenen Erfahrungen in die AG einbringen",p:"Genau solche Beobachtungen aus der Praxis fehlen der Fachdiskussion. Wer sie teilt, prägt mit, wie über die Wirkung von Prävention gesprochen wird."}],ag:[{t:"Netzwerktreffen der AG Prävention",d:"Eigene Erfahrungen einbringen und mit anderen abgleichen"},{t:"Blog der AG Prävention",d:"Erfahrungsberichte lesen und selbst veröffentlichen"},{t:"Physio Deutschland: Prävention",d:"Fachliche Grundlagen und Positionen des Verbands"}],hint:null,quote:"Was Sie täglich sehen, wird zum Beleg, sobald Sie es aufschreiben."}
 };
 
+// ── State ──
 function resolve(a){const key=a.stand+"_"+a.huerden;return Plans[key]?key:null;}
 let step=0,ans={},quizCompleted=false,quizStarted=false,rolleSel=null;
 const $=id=>document.getElementById(id);
-
-// Abbruch bei Tab-/Fenster-Wechsel oder Schließen
-window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")trackAbbruch();});
-window.addEventListener("pagehide",function(){trackAbbruch();});
 
 function startQuiz(){
   step=0;quizCompleted=false;quizStarted=true;abbruchGesendet=false;rolleSel=null;
@@ -332,7 +389,7 @@ function showResult(key){
   $("feedback-text-wrap").classList.remove("visible");$("feedback-sent").classList.remove("visible");
   $("feedback-thumbs").style.display="flex";$("feedback-hint").style.display="";$("feedback-text").value="";
   window.scrollTo(0,0);
-  if(quizCompleted&&ans.stand&&ans.huerden)saveAntwort(ans.stand,ans.huerden,ans.rolle||"skipped",ans.rolle_freitext||"");
+  if(quizCompleted&&ans.stand&&ans.huerden) saveAntwort();
   if(!key||!Plans[key]){
     $("result-intro").innerHTML="";
     $("rcard").innerHTML=`<div class="todo-state"><div class="proto-badge" style="display:inline-block;margin-bottom:18px">In Entwicklung</div><h2>Dieser Weg entsteht gemeinsam mit der AG.</h2><p>Diese Kombination ist vorgesehen, inhaltlich aber noch nicht ausgearbeitet.</p><button class="btn-primary" onclick="restart()">Anderen Weg ansehen <span class="arr">→</span></button></div>`;

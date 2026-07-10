@@ -236,44 +236,44 @@ async function sbPost(table,payload){
     });
   }catch(e){}
 }
-
+  
 // ── Tracking Funktionen ──
 function saveAntwort(){
   if(!quizCompleted||!ans.stand||!ans.huerden)return;
   var dauer=tStart?Math.round((Date.now()-tStart)/1000):null;
   sbPost("antworten",{
-    Praevention_status:ans.stand,
-    Barriere:ans.huerden,
-    Rolle:ans.rolle||"skipped",
-    Rolle_freitext:ans.rolle_freitext||null,
-    Dauer_sekunden:dauer,
-    Geraet:geraet()
+    praevention_status:ans.stand,
+    barriere:ans.huerden,
+    rolle:ans.rolle||"skipped",
+    rolle_freitext:ans.rolle_freitext||null,
+    dauer_sekunden:dauer,
+    geraet:geraet()
   });
 }
 
 let klickZiele={};
 function saveKlick(ziel){
   if(!quizCompleted||!ans.stand||!ans.huerden)return;
-  if(klickZiele[ziel])return; // dasselbe Ziel pro Ergebnisseite nur einmal zaehlen
+  if(klickZiele[ziel])return;
   klickZiele[ziel]=true;
   sbPost("klicks",{
-    Praevention_status:ans.stand,
-    Barriere:ans.huerden,
-    Rolle:ans.rolle||"skipped",
-    Ziel:ziel
+    praevention_status:ans.stand,
+    barriere:ans.huerden,
+    rolle:ans.rolle||"skipped",
+    ziel:ziel
   });
 }
 
 function saveAbbruch(fragenummer){
   sbPost("abbrueche",{
-    Frage:fragenummer,
-    Praevention_status:ans.stand||null,
-    Barriere:ans.huerden||null
+    frage:fragenummer,
+    praevention_status:ans.stand||null,
+    barriere:ans.huerden||null
   });
 }
 
 function saveStart(){
-  sbPost("starts",{Quelle:"web"});
+  sbPost("starts",{quelle:"web"});
 }
 
 let verweilGesendet=false;
@@ -282,25 +282,24 @@ function saveVerweildauer(){
   verweilGesendet=true;
   var v=Math.round((Date.now()-tErgebnis)/1000);
   sbPost("verweildauer",{
-    Praevention_status:ans.stand,
-    Barriere:ans.huerden,
-    Rolle:ans.rolle||"skipped",
-    Sekunden:v,
-    Geraet:geraet()
+    praevention_status:ans.stand,
+    barriere:ans.huerden,
+    rolle:ans.rolle||"skipped",
+    sekunden:v,
+    geraet:geraet()
   });
 }
 
 async function saveFeedback(wert,text){
   if(!quizCompleted||!ans.stand||!ans.huerden)return;
   sbPost("feedback",{
-    Praevention_status:ans.stand,
-    Barriere:ans.huerden,
-    Rolle:ans.rolle||"skipped",
-    Wertung:wert,
-    Kommentar:text||null
+    praevention_status:ans.stand,
+    barriere:ans.huerden,
+    rolle:ans.rolle||"skipped",
+    wertung:wert,
+    kommentar:text||null
   });
 }
-
 // ── Abbruch-Tracking ──
 let abbruchGesendet=false;
 function trackAbbruch(){

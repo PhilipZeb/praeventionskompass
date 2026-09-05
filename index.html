@@ -23,8 +23,8 @@ body{background:#f7f9fc !important;color:#1d2733 !important;font-family:var(--sa
 @media(min-width:900px){.site-header{margin-bottom:72px;padding-bottom:24px}}
 .logo{font-weight:700;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;color:var(--pd-blue);display:flex;align-items:center;gap:10px;}
 .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--pd-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;letter-spacing:0;}
-.logo-img{height:30px;width:auto;max-width:190px;object-fit:contain;display:block;flex:none;}
-@media(min-width:600px){.logo-img{height:36px;max-width:240px}}
+.logo-img{height:38px;width:auto;max-width:220px;object-fit:contain;display:block;flex:none;}
+@media(min-width:600px){.logo-img{height:46px;max-width:280px}}
 .logo-sep{width:1px;align-self:stretch;min-height:22px;background:var(--line);flex:none;}
 .logo-text{white-space:nowrap}
 .proto-badge{font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid #f3d9c4;border-radius:999px;padding:5px 13px;}
@@ -171,13 +171,11 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 <body>
 <div class="wrap">
   <header class="site-header">
-    <!-- Logo: Datei physio-deutschland-logo.png im Repository-Root ablegen (gleicher Ort wie IMG_6466.jpeg).
-         Fehlt die Datei, erscheint automatisch das alte AG-Zeichen als Platzhalter. -->
+    <!-- Logo: Datei physio-deutschland-logo.jpg im Repository-Root ablegen (gleicher Ort wie IMG_6466.jpeg).
+         Fehlt die Datei, erscheint automatisch das alte AG-Zeichen mit Textzusatz als Platzhalter. -->
     <div class="logo">
-      <img class="logo-img" src="https://raw.githubusercontent.com/PhilipZeb/praeventionskompass/main/physio-deutschland-logo.png" alt="Physio Deutschland" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex';">
-      <span class="logo-mark" id="logo-fallback" style="display:none">AG</span>
-      <span class="logo-sep"></span>
-      <span class="logo-text">AG Prävention</span>
+      <img class="logo-img" src="https://raw.githubusercontent.com/PhilipZeb/praeventionskompass/main/physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
+      <span id="logo-fallback" style="display:none;align-items:center;gap:10px"><span class="logo-mark">AG</span><span class="logo-text">AG Prävention</span></span>
     </div>
   </header>
   <section id="intro">

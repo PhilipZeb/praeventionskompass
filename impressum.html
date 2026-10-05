@@ -13,10 +13,12 @@ html{background:var(--bg);color-scheme:light}
 body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
 .wrap{max-width:820px;margin:0 auto;padding:32px 20px 80px}
 @media(min-width:700px){.wrap{padding:48px 32px 100px}}
-.site-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:16px;margin-bottom:28px;border-bottom:1px solid var(--line)}
 .logo{font-weight:700;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--pd-blue);display:flex;align-items:center;gap:10px}
+.logo-img{height:72px;width:auto;max-width:280px;object-fit:contain;display:block;flex:none}
+@media(min-width:700px){.logo-img{height:88px;max-width:320px}}
 .logo-mark{width:26px;height:26px;border-radius:7px;background:var(--pd-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700}
-.back{font-size:.85rem;color:var(--pd-blue);text-decoration:none;font-weight:600}
+.back{font-size:.85rem;color:var(--pd-blue);text-decoration:none;font-weight:600;white-space:nowrap}
 .back:hover{text-decoration:underline}
 h1{font-size:clamp(1.7rem,5vw,2.4rem);color:var(--pd-blue-deep);letter-spacing:-.02em;margin-bottom:24px}
 h2{font-size:1.05rem;color:var(--pd-blue-deep);margin:26px 0 8px}
@@ -31,7 +33,12 @@ a{color:var(--pd-blue)}
 <body>
 <div class="wrap">
   <header class="site-header">
-    <div class="logo"><span class="logo-mark">AG</span><span>AG Prävention</span></div>
+    <!-- Logo: Datei physio-deutschland-logo.jpg im Repository-Root (gleicher Ort wie index.html).
+         Fehlt die Datei, erscheint automatisch das alte AG-Zeichen als Platzhalter. -->
+    <div class="logo">
+      <img class="logo-img" src="https://raw.githubusercontent.com/PhilipZeb/praeventionskompass/main/physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
+      <span id="logo-fallback" style="display:none;align-items:center;gap:10px"><span class="logo-mark">AG</span><span>AG Prävention</span></span>
+    </div>
     <a class="back" href="index.html">← Zurück zum Kompass</a>
   </header>
 

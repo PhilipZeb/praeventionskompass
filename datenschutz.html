@@ -38,16 +38,16 @@ a{color:var(--pd-blue)}
 <div class="wrap">
   <header class="site-header">
     <!-- Logo: Datei physio-deutschland-logo.jpg im Repository-Root (gleicher Ort wie index.html).
-         Fehlt die Datei, erscheint automatisch das alte AG-Zeichen als Platzhalter. -->
+         Wird von der eigenen Domain geladen, kein Fremdaufruf. Fehlt die Datei, erscheint das AG-Zeichen als Platzhalter. -->
     <div class="logo">
-      <img class="logo-img" src="https://raw.githubusercontent.com/PhilipZeb/praeventionskompass/main/physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
+      <img class="logo-img" src="physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
       <span id="logo-fallback" style="display:none;align-items:center;gap:10px"><span class="logo-mark">AG</span><span>AG Prävention</span></span>
     </div>
     <a class="back" href="index.html">← Zurück zum Kompass</a>
   </header>
 
   <h1>Datenschutzerklärung</h1>
-  <p class="stand">Stand: September 2026</p>
+  <p class="stand">Stand: Oktober 2026</p>
 
   <h2>1. Überblick</h2>
   <p>Der Präventionskompass ist ein Onlinewerkzeug für Physiotherapiepraxen. Er funktioniert ohne Anmeldung, ohne Nutzerkonto und ohne Werbung. Es werden keine Cookies zu Trackingzwecken gesetzt und es findet kein websiteübergreifendes Tracking statt. Zur Verbesserung des Werkzeugs und zur Auswertung von Hürden beim Einstieg in die Prävention erheben wir ausschließlich anonyme Nutzungsdaten. Diese Erklärung beschreibt, welche Daten verarbeitet werden und auf welcher Rechtsgrundlage.</p>
@@ -92,14 +92,19 @@ a{color:var(--pd-blue)}
     <li>Ihr Feedback am Ende (Bewertung und ein optionales Freitextfeld)</li>
   </ul>
   <p>Es werden dabei <strong>kein Name, keine E-Mail Adresse, keine IP Adresse und keine Cookies</strong> in diesen Datensätzen gespeichert. Ein Bezug zu Ihrer Person ist uns aus diesen Daten nicht möglich.</p>
-  <p class="muted">Hinweis zu den Freitextfeldern: Wir bitten ausdrücklich darum, dort keine Namen oder persönlichen Daten einzugeben. Sollten Sie dennoch freiwillig personenbezogene Angaben machen, werden diese als Teil Ihres Feedbacks verarbeitet.</p>
+  <p class="muted">Hinweis zu den Freitextfeldern: Wir bitten ausdrücklich darum, dort keine Namen oder persönlichen Daten einzugeben. Sollten Sie dennoch freiwillig personenbezogene Angaben machen, werden diese ausschließlich im Rahmen der unter Punkt 4 genannten Speicherung verarbeitet und nicht an weitere Dienste übermittelt.</p>
   <p>Rechtsgrundlage ist unser berechtigtes Interesse an der Verbesserung des Werkzeugs und an einer anonymen Auswertung gemäß Art. 6 Abs. 1 lit. f DSGVO.</p>
 
   <h3>Speicherung der Nutzungsdaten (Supabase)</h3>
-  <p>Die Nutzungsdaten werden bei der Supabase, Inc. gespeichert. Die Speicherung erfolgt auf Servern in Frankfurt am Main (Deutschland, EU). Mit dem Anbieter besteht eine Vereinbarung zur Auftragsverarbeitung nach Art. 28 DSGVO. Eine Übermittlung der gespeicherten Nutzungsdaten in ein Drittland findet aufgrund des EU Standorts nicht statt.</p>
+  <p>Die Nutzungsdaten werden bei der Supabase, Inc. (San Francisco, USA) gespeichert. Die Speicherung erfolgt ausschließlich auf Servern in Frankfurt am Main (Deutschland, EU). Mit dem Anbieter besteht eine Vereinbarung zur Auftragsverarbeitung nach Art. 28 DSGVO.</p>
+  <p class="muted">Da es sich um ein US Unternehmen handelt, lässt sich ein Zugriff aus einem Drittland nicht vollständig ausschließen. Als Grundlage dienen, soweit der Anbieter zertifiziert ist, der Angemessenheitsbeschluss der EU Kommission (Data Privacy Framework) sowie ergänzend die Standardvertragsklauseln der EU Kommission.</p>
 
-  <h2>5. Schriftarten</h2>
+  <h3>Interne Auswertung</h3>
+  <p>Zur Auswertung übernehmen wir aus den gespeicherten Daten ausschließlich die oben genannten anonymen, kategorischen Angaben in eine interne Übersicht. Die beiden Freitextfelder werden dabei nicht übernommen und verlassen die unter diesem Punkt genannte Speicherung nicht.</p>
+
+  <h2>5. Schriftarten und eingebundenes Video</h2>
   <p>Die auf der Seite verwendeten Schriftarten werden lokal von unserem eigenen Server geladen. Es besteht dabei keine Verbindung zu Servern von Google oder anderen Anbietern, und es werden hierfür keine Daten an Dritte übermittelt.</p>
+  <p>Das auf der Startseite eingebundene Video wird direkt von unserem eigenen Server ausgeliefert. Es wird kein externes Videoportal wie YouTube oder Vimeo verwendet, es werden keine Cookies gesetzt und es werden keine Daten an Dritte übermittelt, die über die unter Punkt 3 genannten Zugriffsdaten hinausgehen.</p>
 
   <h2>6. Keine Cookies und kein Einwilligungsbanner</h2>
   <p>Die Seite setzt keine Cookies und speichert keine Informationen zu Trackingzwecken auf Ihrem Gerät. Eine Einwilligung nach § 25 TDDDG ist daher nicht erforderlich.</p>

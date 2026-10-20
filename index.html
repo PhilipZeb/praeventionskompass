@@ -58,6 +58,10 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 .info-card h3{font-family:var(--display);font-weight:600;font-size:1.12rem;color:var(--pd-blue-deep);margin-bottom:8px;letter-spacing:-.01em;}
 .info-card p{font-size:.98rem;color:var(--ink);line-height:1.62}
 .foot-note{text-align:center;font-size:.78rem;color:var(--ink-soft);margin-top:48px;line-height:1.7}
+.video-wrap{margin:14px 0 0;border-radius:16px;overflow:hidden;background:#000;box-shadow:var(--shadow);line-height:0;}
+@media(min-width:600px){.video-wrap{margin-top:16px}}
+@media(min-width:900px){.video-wrap{margin-top:20px}}
+.video-wrap video{width:100%;height:auto;display:block;background:#000;}
 #quiz{display:none}
 .progress-wrap{margin-bottom:36px}
 .progress-label{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-soft);font-weight:500;margin-bottom:10px;letter-spacing:.04em;}
@@ -201,6 +205,13 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
         <h3>Konkret und umsetzbar</h3>
         <p>Keine Theorie und keine Checkliste, sondern klar benannte Schritte, die sich im Praxisalltag realistisch umsetzen lassen.</p>
       </div>
+    </div>
+    <div class="video-wrap">
+      <video controls preload="metadata" playsinline poster="" src="praeventionskompass.mp4">
+        Ihr Browser unterstützt dieses Video nicht. <a href="praeventionskompass.mp4">Video herunterladen</a>.
+      </video>
+    </div>
+    <div class="info-grid">
       <div class="info-card full">
         <div class="info-icon">◇</div>
         <h3>Was wir in diesem Kontext unter Prävention verstehen</h3>

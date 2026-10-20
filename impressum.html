@@ -34,9 +34,9 @@ a{color:var(--pd-blue)}
 <div class="wrap">
   <header class="site-header">
     <!-- Logo: Datei physio-deutschland-logo.jpg im Repository-Root (gleicher Ort wie index.html).
-         Fehlt die Datei, erscheint automatisch das alte AG-Zeichen als Platzhalter. -->
+         Wird von der eigenen Domain geladen, kein Fremdaufruf. Fehlt die Datei, erscheint das AG-Zeichen als Platzhalter. -->
     <div class="logo">
-      <img class="logo-img" src="https://raw.githubusercontent.com/PhilipZeb/praeventionskompass/main/physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
+      <img class="logo-img" src="physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
       <span id="logo-fallback" style="display:none;align-items:center;gap:10px"><span class="logo-mark">AG</span><span>AG Prävention</span></span>
     </div>
     <a class="back" href="index.html">← Zurück zum Kompass</a>
@@ -54,6 +54,12 @@ a{color:var(--pd-blue)}
   <h2>Kontakt</h2>
   <div class="box">
     <p>E-Mail: <a href="mailto:info@ag-praevention.de">info@ag-praevention.de</a></p>
+  </div>
+
+  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+  <div class="box">
+    <p>Philip Zebrowski<br>
+    Anschrift wie oben</p>
   </div>
 
   <p class="muted">Der Präventionskompass ist ein privat betriebenes Werkzeug, das Inhalte und Angebote der AG Prävention von Physio Deutschland verlinkt.</p>

@@ -21,11 +21,11 @@ body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"
 .back{font-size:.85rem;color:var(--pd-blue);text-decoration:none;font-weight:600;white-space:nowrap}
 .back:hover{text-decoration:underline}
 h1{font-size:clamp(1.7rem,5vw,2.4rem);color:var(--pd-blue-deep);letter-spacing:-.02em;margin-bottom:24px}
-h2{font-size:1.05rem;color:var(--pd-blue-deep);margin:26px 0 8px}
 p{margin-bottom:12px}
 a{color:var(--pd-blue)}
-.box{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0}
-.muted{font-size:.9rem;color:var(--ink-soft)}
+.intro{color:var(--ink-soft);margin-bottom:24px}
+.block{margin:22px 0}
+.block p{margin-bottom:4px}
 .foot{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-size:.82rem;color:var(--ink-soft);text-align:center}
 .foot a{margin:0 8px}
 </style>
@@ -33,8 +33,6 @@ a{color:var(--pd-blue)}
 <body>
 <div class="wrap">
   <header class="site-header">
-    <!-- Logo: Datei physio-deutschland-logo.jpg im Repository-Root (gleicher Ort wie index.html).
-         Wird von der eigenen Domain geladen, kein Fremdaufruf. Fehlt die Datei, erscheint das AG-Zeichen als Platzhalter. -->
     <div class="logo">
       <img class="logo-img" src="physio-deutschland-logo.jpg" alt="Physio Deutschland · AG Prävention" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='inline-flex';">
       <span id="logo-fallback" style="display:none;align-items:center;gap:10px"><span class="logo-mark">AG</span><span>AG Prävention</span></span>
@@ -44,25 +42,23 @@ a{color:var(--pd-blue)}
 
   <h1>Impressum</h1>
 
-  <h2>Angaben gemäß § 5 DDG</h2>
-  <div class="box">
-    <p>Philip Zebrowski<br>
-    Von-Bodelschwingh-Str. 9a<br>
-    50259 Pulheim</p>
+  <p class="intro">Bitte beachten Sie die nachfolgenden rechtlichen Hinweise zu den Inhalten und zur Verfügbarkeit dieser Webseiten, zum Urheberrecht und zu externen Links. Für die Inanspruchnahme von Produkten und Dienstleistungen gelten besondere Bedingungen, auf die gesondert hingewiesen wird.</p>
+
+  <div class="block">
+    <p>Arbeitsgemeinschaft Prävention</p>
+    <p>Nikolaus-Otto-Straße 8</p>
+    <p>59557 Lippstadt</p>
   </div>
 
-  <h2>Kontakt</h2>
-  <div class="box">
+  <div class="block">
+    <p>Tel.: 02941/2868860</p>
     <p>E-Mail: <a href="mailto:info@ag-praevention.de">info@ag-praevention.de</a></p>
   </div>
 
-  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
-  <div class="box">
-    <p>Philip Zebrowski<br>
-    Anschrift wie oben</p>
+  <div class="block">
+    <p>Konzeption und Umsetzung:</p>
+    <p>Philip Zebrowski</p>
   </div>
-
-  <p class="muted">Der Präventionskompass ist ein privat betriebenes Werkzeug, das Inhalte und Angebote der AG Prävention von Physio Deutschland verlinkt.</p>
 
   <div class="foot">
     <a href="index.html">Kompass</a>·<a href="datenschutz.html">Datenschutz</a>·<span>AG Prävention · Physio Deutschland</span>

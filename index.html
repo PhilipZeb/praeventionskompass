@@ -56,6 +56,12 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
 @media(min-width:600px){.btn-primary{font-size:1.2rem;padding:20px 46px;gap:14px}}
 @media(min-width:900px){.btn-primary{font-size:1.25rem;padding:22px 52px}}
 .btn-primary .arr{transition:.2s}.btn-primary:hover .arr{transform:translateX(4px)}
+.btn-primary.btn-hero{font-size:1.2rem;padding:20px 48px}
+@media(min-width:600px){.btn-primary.btn-hero{font-size:1.35rem;padding:24px 58px}}
+@media(min-width:900px){.btn-primary.btn-hero{font-size:1.45rem;padding:26px 66px}}
+.btn-outline{font-family:var(--display);font-weight:600;font-size:1rem;background:var(--white);color:var(--pd-blue);border:2px solid var(--pd-blue);border-radius:14px;padding:15px 34px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:10px;text-decoration:none;}
+.btn-outline:hover{background:var(--pd-blue);color:var(--white);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,79,159,.22)}
+.btn-outline .arr{transition:.2s}.btn-outline:hover .arr{transform:translateX(4px)}
 .trust-line{font-size:.82rem;color:var(--ink-soft);margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .trust-line::before{display:none;}
 .info-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:44px 0 0;}
@@ -201,7 +207,7 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
       <h1>Pr&auml;ven&shy;tions&shy;kompass</h1>
       <p class="hero-tagline">Für Praxen, die Prävention gestalten wollen.</p>
       <p class="hero-sub">Der Präventionskompass unterstützt Physiotherapiepraxen dabei, Prävention in ihre tägliche Arbeit zu integrieren. Er erfasst die aktuelle Situation Ihrer Praxis und zeigt konkrete, umsetzbare nächste Schritte auf.</p>
-      <button class="btn-primary" onclick="startQuiz()">Kompass starten <span class="arr">→</span></button>
+      <button class="btn-primary btn-hero" onclick="startQuiz()">Kompass starten <span class="arr">→</span></button>
       <p style="font-size:.78rem;color:var(--ink-soft);margin-top:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;">Drei Fragen &nbsp;·&nbsp; Zwei Minuten &nbsp;·&nbsp; Anonym</p>
     </div>
     <div class="info-grid">
@@ -227,6 +233,9 @@ h1 em{font-style:italic;color:var(--pd-blue-bright)}
         <div class="info-icon">◇</div>
         <h3>Was wir in diesem Kontext unter Prävention verstehen</h3>
         <p>In diesem Kontext beziehen wir uns auf Leistungen der verhaltensbezogenen Prävention. Damit sind all jene Maßnahmen gemeint, die auf eine Verbesserung des Gesundheitsverhaltens des Menschen abzielen. In unserer Präventionsarbeit befähigen wir Menschen dazu, selbst langfristig gesundheitsförderliches Verhalten durchzuführen.</p>
+      </div>
+      <div style="grid-column:1/-1;display:flex;justify-content:center;margin:2px 0;">
+        <a class="btn-outline" href="https://agp.mygemiko.de/shop.php" target="_blank" rel="noopener">Zertifizierte Kurse finden <span class="arr">→</span></a>
       </div>
       <div class="info-card full">
         <div class="info-icon">✦</div>
@@ -573,4 +582,3 @@ function restart(){for(const k in ans)delete ans[k];step=0;quizCompleted=false;q
 </script>
 </body>
 </html>
-
